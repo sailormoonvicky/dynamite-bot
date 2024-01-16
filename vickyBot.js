@@ -4,8 +4,37 @@ class Bot {
         this.maxDynamite = 100;
     }
 
-    makeMove(gameState) {
+    weightedRandomMove(rockRate, paperRate, scissorRate) {
+        let moveProbabilities = {
+            'P': rockRate,
+            'S': paperRate,
+            'R': scissorRate
+        }
 
+        if (this.dynamiteUsed < this.maxDynamite) {
+            moveProbabilities['D'] = rockRate + paperRate + scissorRate;
+        }
+
+        let total = 0; 
+        let random = Math.random();
+        for (let move in moveProbabilities) {
+            total+= moveProbabilities[move];
+        }
+
+        for (let move in moveProbabilities) {
+            if (random < moveProbabilities[move]/total) {
+                if (move === 'D') {
+                    this.dynamiteUsed++;
+                }
+                return move;
+            }
+            random -= moveProbabilities[move]/total;
+        }
+
+        return ['P', 'R', 'S'][Math.floor(Math.random() * 3)];
+    }
+
+    makeMove(gameState) {
         let roundsPlayed = gameState.rounds.length;
 
         if (roundsPlayed === 0) {
@@ -22,47 +51,14 @@ class Bot {
 
         let p2LastMove = gameState.rounds[roundsPlayed -1].p2;
         let p2DynamiteUsed = gameState.rounds.filter(round => round.p2 === 'D').length;
-        if (p2DynamiteUsed < 100 && p2LastMove === 'D') {
+        let p2DynamiteRate = p2DynamiteUsed/roundsPlayed;
+
+        if (p2DynamiteRate > 0.7 && p2DynamiteUsed < 100) {
             return 'W';
         }
 
         return this.weightedRandomMove(p2RockRate, p2PaperRate, p2ScissorRate);
 
-        }
-
-    weightedRandomMove(rockRate, paperRate, scissorRate) {
-        let moveProbabilities = {
-            'P': rockRate,
-            'S': paperRate,
-            'R': scissorRate
-        }
-
-        if (this.dynamiteUsed < this.maxDynamite) {
-            moveProbabilities['D'] = rockRate + paperRate + scissorRate;
-        }
-
-        let move, total = 0, i, random = Math.random();
-        for (move in moveProbabilities) {
-            total+= moveProbabilities[move];
-        }
-
-        for (move in moveProbabilities) {
-            if (random < moveProbabilities[move]/total) {
-                if (move === 'D') {
-                    this.dynamiteUsed++;
-                }
-                return move;
-            }
-            random -= moveProbabilities[move]/total;
-        }
-
-        if (this.dynamiteUsed < 100) {
-            this.dynamiteUsed++;
-            return 'D';
-        }
-        else {
-            return 'R';
-        }
     }
 
 }
