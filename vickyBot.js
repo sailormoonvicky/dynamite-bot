@@ -21,6 +21,7 @@ class Bot {
             total+= moveProbabilities[move];
         }
 
+
         for (let move in moveProbabilities) {
             if (random < moveProbabilities[move]/total) {
                 if (move === 'D') {
@@ -30,9 +31,12 @@ class Bot {
             }
             random -= moveProbabilities[move]/total;
         }
+   
 
-        return ['P', 'R', 'S'][Math.floor(Math.random() * 3)];
-    }
+        return ['R', 'P', 'S'][Math.floor(Math.random()*3)];
+
+        }
+
 
     makeMove(gameState) {
         let roundsPlayed = gameState.rounds.length;
@@ -48,14 +52,6 @@ class Bot {
         let p2RockRate = p2RockUsed/roundsPlayed;
         let p2PaperRate = p2PaperUsed/roundsPlayed;
         let p2ScissorRate = p2ScissorUsed/roundsPlayed;
-
-        let p2LastMove = gameState.rounds[roundsPlayed -1].p2;
-        let p2DynamiteUsed = gameState.rounds.filter(round => round.p2 === 'D').length;
-        let p2DynamiteRate = p2DynamiteUsed/roundsPlayed;
-
-        if (p2DynamiteRate > 0.7 && p2DynamiteUsed < 100) {
-            return 'W';
-        }
 
         return this.weightedRandomMove(p2RockRate, p2PaperRate, p2ScissorRate);
 
